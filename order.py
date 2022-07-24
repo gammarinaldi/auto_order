@@ -74,13 +74,13 @@ if __name__ == '__main__':
         open_emiten_page(driver, emiten)
 
         try:
-            WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@data-testid="btnBuy"]')))
+            WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[text()="Beli"]')))
             print("Buy button OK")
 
             time.sleep(1)
 
             # Click Beli button
-            driver.find_element(By.XPATH, '//*[@data-testid="btnBuy"]').click()
+            driver.find_element(By.XPATH, '//button[text()="Beli"]').click()
         except TimeoutException:
             print("Loading took too much time!")
 
@@ -210,11 +210,13 @@ if __name__ == '__main__':
         start = date.today() + timedelta(days=1)
         end = start + timedelta(days=30)
 
-        start_m = start.strftime('%#m')
+        start_m_raw = int(start.strftime('%#m')) - 1
+        start_m = str(start_m_raw)
         start_y = start.strftime('%Y')
         start_d = start.strftime('%d')
 
-        end_m = end.strftime('%#m')
+        end_m_raw = int(end.strftime('%#m')) - 1
+        end_m = str(end_m_raw)
         end_y = end.strftime('%Y')
         end_d = end.strftime('%d')
 
@@ -305,8 +307,8 @@ if __name__ == '__main__':
     # Test
     import undetected_chromedriver as uc
     options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
+    options.headless=False
+    # options.add_argument('--headless')
     driver = uc.Chrome(options=options)
 
     emiten = 'GOTO'
