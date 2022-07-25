@@ -7,10 +7,18 @@ if __name__ == '__main__':
     import order
     from dotenv import load_dotenv
 
+    def is_empty_csv(path):
+        with open(path) as csvfile:
+            reader = csv.reader(csvfile)
+            for i, _ in enumerate(reader):
+                if i:  # found the second row
+                    return False
+        return True
+
     try:
         load_dotenv()
 
-        print("Sending WINA to telegram...")
+        print("Performing WINA...")
     
         TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
         TELEGRAM_CHAT_IDS = [os.getenv('TELEGRAM_CHAT_ID_WINA'), os.getenv('TELEGRAM_CHAT_ID_SINYALA')]
@@ -26,51 +34,57 @@ if __name__ == '__main__':
                 self.cut_loss = cut_loss
 
         list = []
+        path = r"C:\Users\Superadmin\Desktop\GamaTradingSystem\WINAReport.csv"
 
-        # Init auto order
-        options = uc.ChromeOptions()
-        options.headless=True
-        options.add_argument('--headless')
-        driver = uc.Chrome(options=options)
-
-        order.delete_cache(driver)
-        order.login(driver)
-
-        with open("../WINAReport.csv", "r") as file:
+        with open(path, "r") as file:
             csvreader = csv.reader(file)
-            next(csvreader, None)
+            if is_empty_csv(path) == False:
+                next(csvreader, None)
 
-            for row in csvreader:
-                emiten = row[0]
-                signal_date = row[1].split(" ")[0]
-                close = row[2]
-                change = row[3]
-                trx = row[4]
-                buy_price = row[5]
-                take_profit = row[6]
-                cut_loss = row[7]
-                
-                msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
+                # Init auto order
+                options = uc.ChromeOptions()
+                options.headless=True
+                options.add_argument('--headless')
+                driver = uc.Chrome(options=options)
 
-                for chat_id in TELEGRAM_CHAT_IDS:
-                    bot.send_message(chat_id=chat_id, text=msg, parse_mode=telegram.ParseMode.MARKDOWN_V2)
+                order.delete_cache(driver)
+                order.login(driver)
 
-                # Input data for auto order
-                list.append(data(emiten, take_profit, cut_loss))
+                for row in csvreader:
+                    emiten = row[0]
+                    signal_date = row[1].split(" ")[0]
+                    close = row[2]
+                    change = row[3]
+                    trx = row[4]
+                    buy_price = row[5]
+                    take_profit = row[6]
+                    cut_loss = row[7]
+                    
+                    msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
 
-                # Send buy order to sekuritas
-                order.create_buy_order(driver, emiten, buy_price)
+                    for chat_id in TELEGRAM_CHAT_IDS:
+                        bot.send_message(chat_id=chat_id, text=msg, parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
-        # Wait 1 hour
-        time.sleep(3600)
+                    # Input data for auto order
+                    list.append(data(emiten, take_profit, cut_loss))
 
-        print('Wait 1 hour to create auto order')
-        # Create auto order
-        for obj in list:
-            order.create_auto_order(driver, obj.emiten, obj.take_profit, obj.cut_loss)
+                    # Send buy order to sekuritas
+                    order.create_buy_order(driver, emiten, buy_price)
 
+                print('Wait 1 hour to create auto order')
+
+                time.sleep(3600)
+
+                # Create auto order
+                for obj in list:
+                    order.create_auto_order(driver, obj.emiten, obj.take_profit, obj.cut_loss)
+            else: 
+                msg = "CSV file is empty."
+                print(msg)
+                bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=msg)
     except Exception as e:
-        bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=e)
+        print(e)
+        bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=str(e))
 
     print("Done.")
 
