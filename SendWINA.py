@@ -3,14 +3,15 @@ if __name__ == '__main__':
     import csv
     import telegram
     import time
-    from order import *
+    import os
+    import order
     from dotenv import load_dotenv
 
-    load_dotenv()
-
-    print("Sending WINA to telegram...")
-
     try:
+        load_dotenv()
+
+        print("Sending WINA to telegram...")
+    
         TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
         TELEGRAM_CHAT_IDS = [os.getenv('TELEGRAM_CHAT_ID_WINA'), os.getenv('TELEGRAM_CHAT_ID_SINYALA')]
         TELEGRAM_LOGGER_ID = os.getenv('TELEGRAM_LOGGER_ID')
@@ -27,11 +28,15 @@ if __name__ == '__main__':
         list = []
 
         # Init auto order
-        driver = uc.Chrome()
-        delete_cache(driver)
-        login(driver)
+        options = uc.ChromeOptions()
+        options.headless=True
+        options.add_argument('--headless')
+        driver = uc.Chrome(options=options)
 
-        with open("WINAReport.csv", "r") as file:
+        order.delete_cache(driver)
+        order.login(driver)
+
+        with open("../WINAReport.csv", "r") as file:
             csvreader = csv.reader(file)
             next(csvreader, None)
 
@@ -54,15 +59,15 @@ if __name__ == '__main__':
                 list.append(data(emiten, take_profit, cut_loss))
 
                 # Send buy order to sekuritas
-                create_buy_order(driver, emiten, buy_price)
+                order.create_buy_order(driver, emiten, buy_price)
 
         # Wait 1 hour
-        time.sleep(5)
+        time.sleep(3600)
 
         print('Wait 1 hour to create auto order')
         # Create auto order
         for obj in list:
-            create_auto_order(driver, obj.emiten, obj.take_profit, obj.cut_loss)
+            order.create_auto_order(driver, obj.emiten, obj.take_profit, obj.cut_loss)
 
     except Exception as e:
         bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=e)
