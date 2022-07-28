@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
         # Define object
         class data():
-            def __init__(self):
+            def __init__(self, emiten, take_profit, cut_loss):
                 self.emiten = emiten
                 self.take_profit = take_profit
                 self.cut_loss = cut_loss
@@ -51,7 +51,7 @@ if __name__ == '__main__':
                 order.login(driver)
 
                 for row in csvreader:
-                    emiten = row[0]
+                    emiten = row[0].replace(".JK", "")
                     signal_date = row[1].split(" ")[0]
                     close = row[2]
                     change = row[3]
@@ -68,6 +68,8 @@ if __name__ == '__main__':
                     # Input data for auto order
                     list.append(data(emiten, take_profit, cut_loss))
 
+                    time.sleep(3)
+
                     # Send buy order to sekuritas
                     order.create_buy_order(driver, emiten, buy_price)
 
@@ -79,9 +81,10 @@ if __name__ == '__main__':
                 for obj in list:
                     order.create_auto_order(driver, obj.emiten, obj.take_profit, obj.cut_loss)
             else: 
-                msg = "CSV file is empty."
-                print(msg)
+                msg = "Sorry, no signal for today."
                 bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=msg)
+                for chat_id in TELEGRAM_CHAT_IDS:
+                        bot.send_message(chat_id=chat_id, text=msg)
     except Exception as e:
         print(e)
         bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=str(e))

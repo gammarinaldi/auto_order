@@ -98,14 +98,16 @@ def create_buy_order(driver, emiten, buy_price):
     # Lot size
     driver.find_element(By.XPATH, '//*[@id="btn"]').click()
 
-    # Click Beli
-    buy_btn = driver.find_element(By.XPATH, '//*[@data-testid="btnPopupBuy"]').is_enabled()
+    buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').is_enabled()
     if buy_btn:
+        # Click Beli
+        driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').click()
+
         # Konfirmasi Beli
         try:
-            WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div/div[2]/div[9]/button')))
+            WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="btnConfirmBuy"]')))
             print("Konfirmasi beli OK")
-            driver.find_element(By.XPATH, '/html/body/div[3]/div/div/div[2]/div[9]/button').click()
+            driver.find_element(By.XPATH, '//button[@data-testid="btnConfirmBuy"]').click()
         except TimeoutException:
             print("Element does not exist!")
 
@@ -136,9 +138,9 @@ def create_take_profit(driver, emiten, take_profit):
         calculate_expiry_date(driver)
 
         # Click take profit
-        driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[2]/div/img').click()
+        driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[2]/div').click()
 
-        # Input take profit price
+        # Input trigger price
         take_profit_field = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[3]/input')
         take_profit_field.send_keys(Keys.CONTROL + "a")
         take_profit_field.send_keys(Keys.DELETE)
@@ -149,6 +151,15 @@ def create_take_profit(driver, emiten, take_profit):
         sell_price.send_keys(Keys.CONTROL + "a")
         sell_price.send_keys(Keys.DELETE)
         sell_price.send_keys(take_profit)
+
+        # Get available lot
+        lot = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[15]/div[2]/span').text()
+
+        # Input lot to order
+        sell_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_LOT"]')
+        sell_lot.send_keys(Keys.CONTROL + "a")
+        sell_lot.send_keys(Keys.DELETE)
+        sell_lot.send_keys(lot)
         
         send_auto_order(driver)
     except TimeoutException:
@@ -178,7 +189,7 @@ def create_cut_loss(driver, emiten, cut_loss):
         # Click cut loss
         driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[1]/div').click()
 
-        # Input cut loss
+        # Input trigger price
         cut_loss_field = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[3]/input')
         cut_loss_field.send_keys(Keys.CONTROL + "a")
         cut_loss_field.send_keys(Keys.DELETE)
@@ -189,6 +200,15 @@ def create_cut_loss(driver, emiten, cut_loss):
         sell_price.send_keys(Keys.CONTROL + "a")
         sell_price.send_keys(Keys.DELETE)
         sell_price.send_keys(cut_loss)
+
+        # Get available lot
+        lot = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[15]/div[2]/span').text()
+
+        # Input lot to order
+        sell_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_LOT"]')
+        sell_lot.send_keys(Keys.CONTROL + "a")
+        sell_lot.send_keys(Keys.DELETE)
+        sell_lot.send_keys(lot)
 
         send_auto_order(driver)
     except TimeoutException:
