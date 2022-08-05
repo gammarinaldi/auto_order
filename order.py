@@ -231,11 +231,11 @@ def calculate_expiry_date(driver):
 
     start_m = str(int(start.strftime('%#m')) - 1)
     start_y = start.strftime('%Y')
-    start_d = start.strftime('%d')
+    start_d = start.strftime('%#d')
 
     end_m = str(int(end.strftime('%#m')) - 1)
     end_y = end.strftime('%Y')
-    end_d = end.strftime('%d')
+    end_d = end.strftime('%#d')
 
     # Input expiry start date
     try:
@@ -322,24 +322,24 @@ def perform_actions(driver, keys):
     actions.perform()
 
 # For testing
-# if __name__ == '__main__':
-#     import undetected_chromedriver as uc
-#     options = uc.ChromeOptions()
-#     options.headless=False
-#     # options.add_argument('--headless')
-#     driver = uc.Chrome(options=options)
+if __name__ == '__main__':
+    import undetected_chromedriver as uc
+    options = uc.ChromeOptions()
+    options.headless=False
+    # options.add_argument('--headless')
+    driver = uc.Chrome(options=options)
 
-#     emiten = 'GOTO'
-#     buy_price = '300'
-#     take_profit = '500'
-#     cut_loss = '100'
+    emiten = 'GOTO'
+    buy_price = '300'
+    take_profit = '500'
+    cut_loss = '100'
 
-#     print('START')
-#     delete_cache(driver)
+    print('START')
+    delete_cache(driver)
 
-#     login(driver)
-#     create_buy_order(driver, emiten, buy_price)
-#     create_auto_order(driver, emiten, take_profit, cut_loss)
+    login(driver)
+    create_buy_order(driver, emiten, buy_price)
+    create_auto_order(driver, emiten, take_profit, cut_loss)
 
-#     driver.quit()
-#     print('FINISH')
+    driver.quit()
+    print('FINISH')
