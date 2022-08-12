@@ -153,7 +153,7 @@ def create_take_profit(driver, emiten, take_profit):
         sell_price.send_keys(take_profit)
 
         # Get available lot
-        lot = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[15]/div[2]/span').text()
+        lot = driver.find_element(By.XPATH, '//span[text()="Lot Yang Dimiliki"]/following::span').text
 
         # Input lot to order
         sell_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_LOT"]')
@@ -202,7 +202,7 @@ def create_cut_loss(driver, emiten, cut_loss):
         sell_price.send_keys(cut_loss)
 
         # Get available lot
-        lot = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[15]/div[2]/span').text()
+        lot = driver.find_element(By.XPATH, '//span[text()="Lot Yang Dimiliki"]/following::span').text
 
         # Input lot to order
         sell_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_LOT"]')
@@ -322,24 +322,24 @@ def perform_actions(driver, keys):
     actions.perform()
 
 # For testing
-if __name__ == '__main__':
-    import undetected_chromedriver as uc
-    options = uc.ChromeOptions()
-    options.headless=False
-    # options.add_argument('--headless')
-    driver = uc.Chrome(options=options)
+# if __name__ == '__main__':
+#     import undetected_chromedriver as uc
+#     options = uc.ChromeOptions()
+#     options.headless=False
+#     # options.add_argument('--headless')
+#     driver = uc.Chrome(options=options)
 
-    emiten = 'GOTO'
-    buy_price = '300'
-    take_profit = '500'
-    cut_loss = '100'
+#     emiten = 'MRAT'
+#     buy_price = '290'
+#     take_profit = '316'
+#     cut_loss = '264'
 
-    print('START')
-    delete_cache(driver)
+#     print('START')
+#     delete_cache(driver)
 
-    login(driver)
-    create_buy_order(driver, emiten, buy_price)
-    create_auto_order(driver, emiten, take_profit, cut_loss)
+#     login(driver)
+#     create_buy_order(driver, emiten, buy_price)
+#     create_auto_order(driver, emiten, take_profit, cut_loss)
 
-    driver.quit()
-    print('FINISH')
+#     driver.quit()
+#     print('FINISH')
