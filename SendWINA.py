@@ -28,8 +28,9 @@ if __name__ == '__main__':
 
         # Define object
         class data():
-            def __init__(self, emiten, take_profit, cut_loss):
+            def __init__(self, emiten, buy_price, take_profit, cut_loss):
                 self.emiten = emiten
+                self.buy_price = buy_price
                 self.take_profit = take_profit
                 self.cut_loss = cut_loss
 
@@ -43,8 +44,8 @@ if __name__ == '__main__':
 
                 # Init auto order
                 options = uc.ChromeOptions()
-                options.headless=True
-                options.add_argument('--headless')
+                options.headless=False
+                # options.add_argument('--headless')
                 driver = uc.Chrome(options=options)
 
                 order.delete_cache(driver)
@@ -66,18 +67,17 @@ if __name__ == '__main__':
                         bot.send_message(chat_id=chat_id, text=msg, parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
                     # Input data for auto order
-                    list.append(data(emiten, take_profit, cut_loss))
+                    list.append(data(emiten, buy_price, take_profit, cut_loss))
 
-                    time.sleep(3)
 
-                    # Send buy order to sekuritas
-                    order.create_buy_order(driver, emiten, buy_price)
+                # Send buy order to sekuritas
+                for obj in list:
+                    order.create_buy_order(driver, obj.emiten, obj.buy_price)
 
                 print('Wait 1 hour to create auto order')
-
                 time.sleep(3600)
 
-                # Create auto order
+                # Send auto sell order to sekuritas
                 for obj in list:
                     order.create_auto_order(driver, obj.emiten, obj.take_profit, obj.cut_loss)
             else: 
