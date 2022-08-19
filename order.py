@@ -1,5 +1,6 @@
 import os
 import time
+import math
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -68,7 +69,7 @@ def login(driver):
 def open_emiten_page(driver, emiten):
     driver.get(HOMEPAGE_URL + emiten)
 
-def create_buy_order(driver, emiten, buy_price):
+def create_buy_order(driver, emiten, buy_price, buy_power):
     # Open emiten page
     open_emiten_page(driver, emiten)
 
@@ -95,8 +96,12 @@ def create_buy_order(driver, emiten, buy_price):
     except TimeoutException:
         print("Element does not exist!")
 
-    # Lot size
-    driver.find_element(By.XPATH, '//*[@id="btn"]').click()
+    # Calculate position size each stock
+    buy_lot = buy_power / (int(buy_price) * 100)
+    input_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_BUY_LOT"]')
+    input_lot.send_keys(Keys.CONTROL + "A")
+    input_lot.send_keys(Keys.DELETE)
+    input_lot.send_keys(math.floor(buy_lot))
 
     buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').is_enabled()
     if buy_btn:
@@ -308,11 +313,11 @@ def delete_cache(driver):
     driver.switch_to.window(driver.window_handles[-1])  # Switch window to the second tab
     driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
 
-    perform_actions(driver, Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 5 + Keys.ENTER)  # Tab to the time select and key down to say "All Time" then go to the Confirm button and press Enter
+    perform_delete_cache(driver, Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 5 + Keys.ENTER)  # Tab to the time select and key down to say "All Time" then go to the Confirm button and press Enter
     driver.close()  # Close that window
     driver.switch_to.window(driver.window_handles[0])  # Switch Selenium controls to the original tab to continue normal functionality.
 
-def perform_actions(driver, keys):
+def perform_delete_cache(driver, keys):
     actions = ActionChains(driver)
     actions.send_keys(keys)
 
@@ -320,6 +325,13 @@ def perform_actions(driver, keys):
 
     print('Performing delete cache!')
     actions.perform()
+
+def filter_non_digits(string: str) -> str:
+    result = ''
+    for char in string:
+        if char in '1234567890':
+            result += char
+    return int(result) 
 
 # For testing
 # if __name__ == '__main__':
@@ -338,7 +350,7 @@ def perform_actions(driver, keys):
 #     delete_cache(driver)
 
 #     login(driver)
-#     create_buy_order(driver, emiten, buy_price)
+#     create_buy_order(driver, emiten, buy_price, 1)
 #     create_auto_order(driver, emiten, take_profit, cut_loss)
 
 #     driver.quit()

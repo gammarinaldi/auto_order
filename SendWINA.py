@@ -5,26 +5,27 @@ if __name__ == '__main__':
     import time
     import os
     import order
+    import math
     from dotenv import load_dotenv
+    from selenium.webdriver.common.by import By
 
-    def is_empty_csv(path):
-        with open(path) as csvfile:
-            reader = csv.reader(csvfile)
-            for i, _ in enumerate(reader):
-                if i:  # found the second row
-                    return False
-        return True
+    print("Performing WINA...")
 
     try:
-        load_dotenv()
+        def is_empty_csv(path):
+            with open(path) as csvfile:
+                reader = csv.reader(csvfile)
+                for i, _ in enumerate(reader):
+                    if i:  # Found the second row
+                        return False
+            return True
 
-        print("Performing WINA...")
-    
-        TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-        TELEGRAM_CHAT_IDS = [os.getenv('TELEGRAM_CHAT_ID_WINA'), os.getenv('TELEGRAM_CHAT_ID_SINYALA')]
-        TELEGRAM_LOGGER_ID = os.getenv('TELEGRAM_LOGGER_ID')
-
-        bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
+        def filter_non_digits(string: str) -> str:
+            result = ''
+            for char in string:
+                if char in '1234567890':
+                    result += char
+            return int(result) 
 
         # Define object
         class data():
@@ -33,6 +34,13 @@ if __name__ == '__main__':
                 self.buy_price = buy_price
                 self.take_profit = take_profit
                 self.cut_loss = cut_loss
+
+        load_dotenv()
+    
+        TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+        TELEGRAM_CHAT_IDS = [os.getenv('TELEGRAM_CHAT_ID_WINA'), os.getenv('TELEGRAM_CHAT_ID_SINYALA')]
+        TELEGRAM_LOGGER_ID = os.getenv('TELEGRAM_LOGGER_ID')
+        bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
 
         list = []
         path = r"C:\Users\Superadmin\Desktop\GamaTradingSystem\WINAReport.csv"
@@ -44,8 +52,8 @@ if __name__ == '__main__':
 
                 # Init auto order
                 options = uc.ChromeOptions()
-                options.headless=False
-                # options.add_argument('--headless')
+                options.headless=True
+                options.add_argument('--headless')
                 driver = uc.Chrome(options=options)
 
                 order.delete_cache(driver)
@@ -69,10 +77,17 @@ if __name__ == '__main__':
                     # Input data for auto order
                     list.append(data(emiten, buy_price, take_profit, cut_loss))
 
+                # Length of list
+                list_len = len(list)
+
+                # Get buying power
+                buy_power_str = driver.find_element(By.XPATH, '//span[text()="Regular Buying Power"]/following::span').text
+                buy_power_num = filter_non_digits(buy_power_str)
+                buy_power = buy_power_num / len(list)
 
                 # Send buy order to sekuritas
                 for obj in list:
-                    order.create_buy_order(driver, obj.emiten, obj.buy_price)
+                    order.create_buy_order(driver, obj.emiten, obj.buy_price, math.floor(buy_power))
 
                 print('Wait 1 hour to create auto order')
                 time.sleep(3600)
