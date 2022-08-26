@@ -31,10 +31,10 @@ def login(driver):
     # Input login
     driver.get(LOGIN_URL + '/login')
 
-    email = driver.find_element(By.XPATH, '//*[@id="root"]/section/div[1]/div/div[2]/form/div[1]/input')
+    email = driver.find_element(By.XPATH, '//input[@name="email"]')
     email.send_keys(EMAIL)
 
-    password = driver.find_element(By.XPATH, '//*[@id="root"]/section/div[1]/div/div[2]/form/div[2]/input')
+    password = driver.find_element(By.XPATH, '//input[@name="password"]')
     password.send_keys(PASSWORD)
     password.send_keys(Keys.RETURN)
 
@@ -42,34 +42,42 @@ def login(driver):
 
     # Input PIN
     try:
-        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div/div[2]/div/div[2]/span')))
+        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//input[@class="pincode-input-text"]')))
         print("Input PIN OK")
 
-        pin1 = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div/div[3]/div/input[1]')
+        pin1 = driver.find_element(By.XPATH, '//input[@class="pincode-input-text"]')
         pin1.send_keys(PIN1)
 
-        pin2 = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div/div[3]/div/input[2]')
+        pin2 = driver.find_element(By.XPATH, '//input[@class="pincode-input-text"]/following::input')
         pin2.send_keys(PIN2)
 
-        pin3 = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div/div[3]/div/input[3]')
+        pin3 = driver.find_element(By.XPATH, '//input[@class="pincode-input-text"]/following::input/following::input')
         pin3.send_keys(PIN3)
 
-        pin4 = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div/div[3]/div/input[4]')
+        pin4 = driver.find_element(By.XPATH, '//input[@class="pincode-input-text"]/following::input/following::input/following::input')
         pin4.send_keys(PIN4)
     except TimeoutException:
         print("Loading took too much time!")
 
-    # Wait for homepage
-    try:
-        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/p')))
-        print("Homepage OK")            
-    except TimeoutException:
-        print("Loading took too much time!")
+    time.sleep(3)
 
 def open_emiten_page(driver, emiten):
     driver.get(HOMEPAGE_URL + emiten)
 
-def create_buy_order(driver, emiten, buy_price, buy_power):
+def filter_non_digits(string: str) -> str:
+    result = ''
+    for char in string:
+        if char in '1234567890':
+            result += char
+    return int(result) 
+
+def get_buying_power(driver, list_len):
+    # Get buying power
+    buy_power_str = driver.find_element(By.XPATH, '//span[text()="Regular Buying Power"]/following::span').text
+    buy_power_num = filter_non_digits(buy_power_str)
+    return math.floor(buy_power_num / list_len)
+
+def create_buy_order(driver, emiten, buy_price, list_len):
     # Open emiten page
     open_emiten_page(driver, emiten)
 
@@ -97,6 +105,7 @@ def create_buy_order(driver, emiten, buy_price, buy_power):
         print("Element does not exist!")
 
     # Calculate position size each stock
+    buy_power = get_buying_power(driver, list_len)
     buy_lot = buy_power / (int(buy_price) * 100)
     input_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_BUY_LOT"]')
     input_lot.send_keys(Keys.CONTROL + "A")
@@ -136,17 +145,17 @@ def create_take_profit(driver, emiten, take_profit):
 
         driver.find_element(By.XPATH, '//*[@data-testid="btnSell"]').click()
 
-        # Select auto order type
+        # Select order type
         select_auto_order_type(driver)
 
         # Input expiry date
         calculate_expiry_date(driver)
 
         # Click take profit
-        driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[2]/div').click()
+        driver.find_element(By.XPATH, '//div[@class="css-14fs2b0 col"]').click()
 
         # Input trigger price
-        take_profit_field = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[3]/input')
+        take_profit_field = driver.find_element(By.XPATH, '//div[@class="pl-4 col-md-6"]//input')
         take_profit_field.send_keys(Keys.CONTROL + "a")
         take_profit_field.send_keys(Keys.DELETE)
         take_profit_field.send_keys(take_profit)
@@ -192,10 +201,10 @@ def create_cut_loss(driver, emiten, cut_loss):
         calculate_expiry_date(driver)
 
         # Click cut loss
-        driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[1]/div').click()
+        driver.find_element(By.XPATH, '//div[@class="css-14fs2b0 col"]').click()
 
         # Input trigger price
-        cut_loss_field = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[11]/div[2]/div/div[3]/input')
+        cut_loss_field = driver.find_element(By.XPATH, '//div[@class="pl-4 col-md-6"]//input')
         cut_loss_field.send_keys(Keys.CONTROL + "a")
         cut_loss_field.send_keys(Keys.DELETE)
         cut_loss_field.send_keys(cut_loss)
@@ -244,18 +253,18 @@ def calculate_expiry_date(driver):
 
     # Input expiry start date
     try:
-        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[9]/div[2]/div/div[1]/div/input')))
+        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//div[@class="react-datepicker__input-container"]//input')))
         print("Start date picker OK")
 
         # Click start date picker 
-        driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[9]/div[2]/div/div[1]/div/input').click()
+        driver.find_element(By.XPATH, '//div[@class="react-datepicker__input-container"]//input').click()
 
         # Select start month
-        select_start_month = Select(driver.find_element(By.XPATH, '/html/body/div/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[9]/div[2]/div/div[2]/div[2]/div/div/div[2]/div[1]/div[2]/div[1]/select'))
+        select_start_month = Select(driver.find_element(By.XPATH, '//select[@class="react-datepicker__month-select"]'))
         select_start_month.select_by_value(start_m)
 
         # Select start year
-        select_start_year = Select(driver.find_element(By.XPATH, '/html/body/div/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[9]/div[2]/div/div[2]/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/select'))
+        select_start_year = Select(driver.find_element(By.XPATH, '//select[@class="react-datepicker__year-select"]'))
         select_start_year.select_by_value(start_y)
 
         # Click start date
@@ -265,18 +274,18 @@ def calculate_expiry_date(driver):
 
     # Input expiry end date
     try:
-        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[10]/div[2]/div/div[1]/div/input')))
+        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//div[@class="react-datepicker__input-container"]//following::div[@class="react-datepicker__input-container"]')))
         print("End date picker OK")
 
         # Click end date picker 
-        driver.find_element(By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[10]/div[2]/div/div[1]/div/input').click()
+        driver.find_element(By.XPATH, '//div[@class="react-datepicker__input-container"]//following::div[@class="react-datepicker__input-container"]').click()
 
         # Select end month
-        select_end_month = Select(driver.find_element(By.XPATH, '/html/body/div/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[10]/div[2]/div/div[2]/div[2]/div/div/div[2]/div[1]/div[2]/div[1]/select'))
+        select_end_month = Select(driver.find_element(By.XPATH, '//select[@class="react-datepicker__month-select"]'))
         select_end_month.select_by_value(end_m)
 
         # Select end year
-        select_end_year = Select(driver.find_element(By.XPATH, '/html/body/div/div/div[2]/div[2]/div[3]/div/div/div[3]/div[5]/div[1]/div/div[1]/div[10]/div[2]/div/div[2]/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/select'))
+        select_end_year = Select(driver.find_element(By.XPATH, '//select[@class="react-datepicker__year-select"]'))
         select_end_year.select_by_value(end_y)
 
         # Click end date
@@ -334,24 +343,24 @@ def filter_non_digits(string: str) -> str:
     return int(result) 
 
 # For testing
-# if __name__ == '__main__':
-#     import undetected_chromedriver as uc
-#     options = uc.ChromeOptions()
-#     options.headless=False
-#     # options.add_argument('--headless')
-#     driver = uc.Chrome(options=options)
+if __name__ == '__main__':
+    import undetected_chromedriver as uc
+    options = uc.ChromeOptions()
+    options.headless=True
+    options.add_argument('--headless')
+    driver = uc.Chrome(options=options)
 
-#     emiten = 'MRAT'
-#     buy_price = '290'
-#     take_profit = '316'
-#     cut_loss = '264'
+    emiten = 'DSFI'
+    buy_price = '97'
+    take_profit = '101'
+    cut_loss = '93'
 
-#     print('START')
-#     delete_cache(driver)
+    print('START')
+    delete_cache(driver)
 
-#     login(driver)
-#     create_buy_order(driver, emiten, buy_price, 1)
-#     create_auto_order(driver, emiten, take_profit, cut_loss)
+    login(driver)
+    create_buy_order(driver, emiten, buy_price, 1)
+    create_auto_order(driver, emiten, take_profit, cut_loss)
 
-#     driver.quit()
-#     print('FINISH')
+    driver.quit()
+    print('FINISH')

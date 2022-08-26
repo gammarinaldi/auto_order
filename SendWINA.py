@@ -1,3 +1,6 @@
+from .order import get_buying_power
+
+
 if __name__ == '__main__':
     import undetected_chromedriver as uc
     import csv
@@ -19,13 +22,6 @@ if __name__ == '__main__':
                     if i:  # Found the second row
                         return False
             return True
-
-        def filter_non_digits(string: str) -> str:
-            result = ''
-            for char in string:
-                if char in '1234567890':
-                    result += char
-            return int(result) 
 
         # Define object
         class data():
@@ -77,17 +73,9 @@ if __name__ == '__main__':
                     # Input data for auto order
                     list.append(data(emiten, buy_price, take_profit, cut_loss))
 
-                # Length of list
-                list_len = len(list)
-
-                # Get buying power
-                buy_power_str = driver.find_element(By.XPATH, '//span[text()="Regular Buying Power"]/following::span').text
-                buy_power_num = filter_non_digits(buy_power_str)
-                buy_power = buy_power_num / len(list)
-
                 # Send buy order to sekuritas
                 for obj in list:
-                    order.create_buy_order(driver, obj.emiten, obj.buy_price, math.floor(buy_power))
+                    order.create_buy_order(driver, obj.emiten, obj.buy_price, len(list))
 
                 print('Wait 1 hour to create auto order')
                 time.sleep(3600)
