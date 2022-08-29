@@ -85,26 +85,23 @@ def create_buy_order(driver, emiten, buy_price, list_len):
         WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[text()="Beli"]')))
         print("Buy button OK")
 
-        time.sleep(1)
-
         # Click Beli button
-        driver.find_element(By.XPATH, '//button[text()="Beli"]').click()
+        element = driver.find_element(By.XPATH, '//button[text()="Beli"]').click()
     except TimeoutException:
-        print("Loading took too much time!")
+        print("Buy botton does not exist!")
 
     # Input price
     try:
         WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INPUT_BUY_PRICE"]')))
         print("Input buy price OK")
-        time.sleep(1)
         input_price = driver.find_element(By.XPATH, '//*[@id="INPUT_BUY_PRICE"]')
         input_price.send_keys(Keys.CONTROL + "A")
         input_price.send_keys(Keys.DELETE)
         input_price.send_keys(buy_price)
     except TimeoutException:
-        print("Element does not exist!")
+        print("Input buy price does not exist!")
 
-    # Calculate position size each stock
+    # Calculate position size for each stock
     buy_power = get_buying_power(driver, list_len)
     buy_lot = buy_power / (int(buy_price) * 100)
     input_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_BUY_LOT"]')
@@ -343,24 +340,24 @@ def filter_non_digits(string: str) -> str:
     return int(result) 
 
 # For testing
-if __name__ == '__main__':
-    import undetected_chromedriver as uc
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(options=options)
+# if __name__ == '__main__':
+#     import undetected_chromedriver as uc
+#     options = uc.ChromeOptions()
+#     options.headless=True
+#     options.add_argument('--headless')
+#     driver = uc.Chrome(options=options)
 
-    emiten = 'DSFI'
-    buy_price = '97'
-    take_profit = '101'
-    cut_loss = '93'
+#     emiten = 'GOTO'
+#     buy_price = '300'
+#     take_profit = '500'
+#     cut_loss = '100'
 
-    print('START')
-    delete_cache(driver)
+#     print('START')
+#     delete_cache(driver)
 
-    login(driver)
-    create_buy_order(driver, emiten, buy_price, 1)
-    create_auto_order(driver, emiten, take_profit, cut_loss)
+#     login(driver)
+#     create_buy_order(driver, emiten, buy_price, 1)
+#     create_auto_order(driver, emiten, take_profit, cut_loss)
 
-    driver.quit()
-    print('FINISH')
+#     driver.quit()
+#     print('FINISH')

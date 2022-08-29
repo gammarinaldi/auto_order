@@ -1,6 +1,3 @@
-from .order import get_buying_power
-
-
 if __name__ == '__main__':
     import undetected_chromedriver as uc
     import csv
