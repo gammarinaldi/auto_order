@@ -62,6 +62,7 @@ def login(driver):
     time.sleep(3)
 
 def open_emiten_page(driver, emiten):
+    time.sleep(3)
     driver.get(HOMEPAGE_URL + emiten)
 
 def filter_non_digits(string: str) -> str:
@@ -71,43 +72,50 @@ def filter_non_digits(string: str) -> str:
             result += char
     return int(result) 
 
-def get_buying_power(driver, list_len):
+def get_buying_power(driver):
     # Get buying power
-    buy_power_str = driver.find_element(By.XPATH, '//span[text()="Regular Buying Power"]/following::span').text
-    buy_power_num = filter_non_digits(buy_power_str)
-    return math.floor(buy_power_num / list_len)
+    # buy_power_str = driver.find_element(By.XPATH, '//span[text()="Regular Buying Power"]/following::span').text
+    # buy_power_num = filter_non_digits(buy_power_str)
+    buy_power_num = 20_000_000
+    return math.floor(buy_power_num / 4)
 
-def create_buy_order(driver, emiten, buy_price, list_len):
+def create_buy_order(driver, emiten, buy_price):
     # Open emiten page
     open_emiten_page(driver, emiten)
 
     try:
-        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[text()="Beli"]')))
+        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@data-testid="btnBuy"]')))
         print("Buy button OK")
 
         # Click Beli button
-        element = driver.find_element(By.XPATH, '//button[text()="Beli"]').click()
+        driver.find_element(By.XPATH, '//*[@data-testid="btnBuy"]').click()
     except TimeoutException:
         print("Buy botton does not exist!")
 
+    time.sleep(3)
+
     # Input price
     try:
-        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@id="INPUT_BUY_PRICE"]')))
+        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//input[@id="INPUT_BUY_PRICE"]')))
         print("Input buy price OK")
-        input_price = driver.find_element(By.XPATH, '//*[@id="INPUT_BUY_PRICE"]')
+        input_price = driver.find_element(By.XPATH, '//input[@id="INPUT_BUY_PRICE"]')
         input_price.send_keys(Keys.CONTROL + "A")
         input_price.send_keys(Keys.DELETE)
         input_price.send_keys(buy_price)
     except TimeoutException:
         print("Input buy price does not exist!")
 
-    # Calculate position size for each stock
-    buy_power = get_buying_power(driver, list_len)
+    time.sleep(3)
+
+    # Calculate position size (Lot)
+    buy_power = get_buying_power(driver)
     buy_lot = buy_power / (int(buy_price) * 100)
     input_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_BUY_LOT"]')
     input_lot.send_keys(Keys.CONTROL + "A")
     input_lot.send_keys(Keys.DELETE)
     input_lot.send_keys(math.floor(buy_lot))
+
+    time.sleep(3)
 
     buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').is_enabled()
     if buy_btn:
@@ -121,6 +129,8 @@ def create_buy_order(driver, emiten, buy_price, list_len):
             driver.find_element(By.XPATH, '//button[@data-testid="btnConfirmBuy"]').click()
         except TimeoutException:
             print("Element does not exist!")
+    print("Pembelian berhasil!")
+    time.sleep(3)
 
 def create_auto_order(driver, emiten, take_profit, cut_loss):
     create_take_profit(driver, emiten, take_profit)
@@ -149,7 +159,7 @@ def create_take_profit(driver, emiten, take_profit):
         calculate_expiry_date(driver)
 
         # Click take profit
-        driver.find_element(By.XPATH, '//div[@class="css-14fs2b0 col"]').click()
+        driver.find_element(By.XPATH, '//div[@class="pl-4 pr-4 col-md-3"]').click()
 
         # Input trigger price
         take_profit_field = driver.find_element(By.XPATH, '//div[@class="pl-4 col-md-6"]//input')
@@ -198,7 +208,7 @@ def create_cut_loss(driver, emiten, cut_loss):
         calculate_expiry_date(driver)
 
         # Click cut loss
-        driver.find_element(By.XPATH, '//div[@class="css-14fs2b0 col"]').click()
+        driver.find_element(By.XPATH, '//div[@class="pl-0 pr-8 col-md-3"]').click()
 
         # Input trigger price
         cut_loss_field = driver.find_element(By.XPATH, '//div[@class="pl-4 col-md-6"]//input')
@@ -341,23 +351,23 @@ def filter_non_digits(string: str) -> str:
 
 # For testing
 # if __name__ == '__main__':
-#     import undetected_chromedriver as uc
-#     options = uc.ChromeOptions()
-#     options.headless=True
-#     options.add_argument('--headless')
-#     driver = uc.Chrome(options=options)
+    # import undetected_chromedriver as uc
+    # options = uc.ChromeOptions()
+    # options.headless=True
+    # options.add_argument('--headless')
+    # driver = uc.Chrome(options=options)
 
-#     emiten = 'GOTO'
-#     buy_price = '300'
-#     take_profit = '500'
-#     cut_loss = '100'
+    # emiten = 'GOTO'
+    # buy_price = '300'
+    # take_profit = '500'
+    # cut_loss = '100'
 
-#     print('START')
-#     delete_cache(driver)
+    # print('START')
+    # delete_cache(driver)
 
-#     login(driver)
-#     create_buy_order(driver, emiten, buy_price, 1)
-#     create_auto_order(driver, emiten, take_profit, cut_loss)
+    # login(driver)
+    # create_buy_order(driver, emiten, buy_price)
+    # create_auto_order(driver, emiten, take_profit, cut_loss)
 
-#     driver.quit()
-#     print('FINISH')
+    # driver.quit()
+    # print('FINISH')

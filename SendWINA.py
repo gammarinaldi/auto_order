@@ -5,7 +5,6 @@ if __name__ == '__main__':
     import time
     import os
     import order
-    import math
     from dotenv import load_dotenv
     from selenium.webdriver.common.by import By
 
@@ -64,15 +63,15 @@ if __name__ == '__main__':
                     
                     msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
 
-                    for chat_id in TELEGRAM_CHAT_IDS:
-                        bot.send_message(chat_id=chat_id, text=msg, parse_mode=telegram.ParseMode.MARKDOWN_V2)
+                    # for chat_id in TELEGRAM_CHAT_IDS:
+                    #     bot.send_message(chat_id=chat_id, text=msg, parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
                     # Input data for auto order
                     list.append(data(emiten, buy_price, take_profit, cut_loss))
 
                 # Send buy order to sekuritas
                 for obj in list:
-                    order.create_buy_order(driver, obj.emiten, obj.buy_price, len(list))
+                    order.create_buy_order(driver, obj.emiten, obj.buy_price)
 
                 print('Wait 1 hour to create auto order')
                 time.sleep(3600)
