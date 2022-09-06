@@ -201,8 +201,7 @@ def create_take_profit(user_email, driver, emiten, take_profit):
         
         send_auto_order(user_email, driver)
     except TimeoutException:
-        print(user_email + ": retrying button jual...")
-        create_take_profit(user_email, driver, emiten, take_profit)
+        print(user_email + ": button jual does not exist!")
 
 def create_cut_loss(user_email, driver, emiten, cut_loss):
     print(user_email + ": start create cut loss")
@@ -251,8 +250,7 @@ def create_cut_loss(user_email, driver, emiten, cut_loss):
 
         send_auto_order(user_email, driver)
     except TimeoutException:
-        print(user_email + ": retrying button jual...")
-        create_cut_loss(user_email, driver, emiten, cut_loss)
+        print(user_email + ": button jual does not exist!")
 
 def select_auto_order_type(user_email, driver):
     # Pick order type
