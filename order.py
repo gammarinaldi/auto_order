@@ -30,14 +30,18 @@ def login(user, driver):
     # Input login
     driver.get(LOGIN_URL + '/login')
 
-    email = driver.find_element(By.XPATH, '//input[@name="email"]')
-    email.send_keys(user_email)
+    try:
+        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//input[@name="email"]')))
+        print(user_email + ": input login")
 
-    password = driver.find_element(By.XPATH, '//input[@name="password"]')
-    password.send_keys(user_pass)
-    password.send_keys(Keys.RETURN)
+        email = driver.find_element(By.XPATH, '//input[@name="email"]')
+        email.send_keys(user_email)
 
-    print(user_email + ": input login")
+        password = driver.find_element(By.XPATH, '//input[@name="password"]')
+        password.send_keys(user_pass)
+        password.send_keys(Keys.RETURN)
+    except TimeoutException:
+        print(user_email + ": input login failed!")
 
     # Input PIN
     pins = []
@@ -364,26 +368,3 @@ def filter_non_digits(string: str) -> str:
         if char in '1234567890':
             result += char
     return int(result) 
-
-# For testing
-# if __name__ == '__main__':
-    # import undetected_chromedriver as uc
-    # options = uc.ChromeOptions()
-    # options.headless=True
-    # options.add_argument('--headless')
-    # driver = uc.Chrome(options=options)
-
-    # emiten = 'GOTO'
-    # buy_price = '300'
-    # take_profit = '500'
-    # cut_loss = '100'
-
-    # print('START')
-    # delete_cache(driver)
-
-    # login(driver)
-    # create_buy_order(driver, emiten, buy_price)
-    # create_auto_order(driver, emiten, take_profit, cut_loss)
-
-    # driver.quit()
-    # print('FINISH')

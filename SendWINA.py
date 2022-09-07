@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 if __name__ == '__main__':
     try:
         def get_user_data():
-            f = open('auto_order\data.json')
+            f = open(r"C:\Users\Gama\Downloads\GamaTradingSystem\auto_order\data.json")
             users = json.load(f)
             f.close()
             return users
@@ -144,7 +144,7 @@ if __name__ == '__main__':
                 print("Processing buy order takes: " + str(round(diff, 2)) + " secs.")
 
                 print('Wait 1 hour to create auto sell order')
-                time.sleep(5)
+                time.sleep(3600)
 
                 t1 = time.time()
 
