@@ -22,6 +22,8 @@ HOMEPAGE_URL = os.getenv('HOMEPAGE_URL')
 
 DELAY = 10 # seconds
 
+err_msg = []
+
 def login(user, driver):
     user_email = user["email"]
     user_pass = user["password"]
@@ -41,7 +43,9 @@ def login(user, driver):
         password.send_keys(user_pass)
         password.send_keys(Keys.RETURN)
     except TimeoutException:
-        print(user_email + ": input login failed!")
+        msg = user_email + ": input login failed!"
+        err_msg.append(msg)
+        print(msg)
 
     # Input PIN
     pins = []
@@ -64,9 +68,13 @@ def login(user, driver):
         pin4 = driver.find_element(By.XPATH, '//input[@class="pincode-input-text"]/following::input/following::input/following::input')
         pin4.send_keys(pins[3])
     except TimeoutException:
-        print(user_email + ": input PIN failed!")
+        msg = user_email + ": input PIN failed!"
+        err_msg.append(msg)
+        print(msg)
 
     time.sleep(3)
+
+    return err_msg
 
 def logout(user, driver):
     print(user["email"] + ": logout")
@@ -140,17 +148,31 @@ def create_buy_order(user, driver, emiten, buy_price):
                     time.sleep(3)
 
                     driver.find_element(By.XPATH, '//button[@data-testid="btnConfirmBuy"]').click()
-                    print(user_email + ": buying " + emiten + " SUCCESS!")
+
+                    msg = user_email + ": buying " + emiten + " success!"
+                    err_msg.append(msg)
+                    print(msg)
                 except TimeoutException:
-                    print(user_email + ": button konfirmasi beli does not exist!")
+                    msg = user_email + ": button konfirmasi beli does not exist!"
+                    err_msg.append(msg)
+                    print(msg)
+            else:
+                msg = user_email + ": buying " + emiten + " failed!"
+                err_msg.append(msg)
+                print(msg)
         except TimeoutException:
-            print(user_email + ": input harga does not exist!")
+            msg = user_email + ": input harga does not exist!"
+            err_msg.append(msg)
+            print(msg)
             create_buy_order(user, driver, emiten, buy_price)
     except TimeoutException:
-        print(user_email + ": button beli does not exist!")
+        msg = user_email + ": button beli does not exist!"
+        err_msg.append(msg)
+        print(msg)
         create_buy_order(user, driver, emiten, buy_price)
 
     time.sleep(3)
+    return err_msg
 
 def create_sell_order(user, driver, emiten, take_profit, cut_loss):
     user_email = user["email"]
@@ -205,7 +227,11 @@ def create_take_profit(user_email, driver, emiten, take_profit):
         
         send_auto_order(user_email, driver)
     except TimeoutException:
-        print(user_email + ": button jual does not exist!")
+        msg = user_email + ": button jual does not exist!"
+        err_msg.append(msg)
+        print(msg)
+
+    return err_msg
 
 def create_cut_loss(user_email, driver, emiten, cut_loss):
     print(user_email + ": start create cut loss")
@@ -254,7 +280,11 @@ def create_cut_loss(user_email, driver, emiten, cut_loss):
 
         send_auto_order(user_email, driver)
     except TimeoutException:
-        print(user_email + ": button jual does not exist!")
+        msg = user_email + ": button jual does not exist!"
+        err_msg.append(msg)
+        print(msg)
+
+    return err_msg
 
 def select_auto_order_type(user_email, driver):
     # Pick order type
@@ -264,7 +294,9 @@ def select_auto_order_type(user_email, driver):
         driver.find_element(By.XPATH, '//*[@id="periodType"]').click()
         driver.find_element(By.XPATH, '//*[@data-testid="opt-periodType-1"]').click()
     except TimeoutException:
-        print(user_email + ": pilih tipe order does not exist!")
+        msg = user_email + ": pilih tipe order does not exist!"
+        err_msg.append(msg)
+        print(msg)
 
 def calculate_expiry_date(user_email, driver):
     # Calculate expiry date
@@ -298,7 +330,9 @@ def calculate_expiry_date(user_email, driver):
         # Click start date
         driver.find_element(By.XPATH, "//div[text()='" + start_d + "'][@aria-disabled='false']").click()
     except TimeoutException:
-        print(user_email + ": start date picker does not exist!")
+        msg = user_email + ": start date picker does not exist!"
+        err_msg.append(msg)
+        print(msg)
 
     # Input expiry end date
     try:
@@ -319,7 +353,9 @@ def calculate_expiry_date(user_email, driver):
         # Click end date
         driver.find_element(By.XPATH, "//div[text()='" + end_d + "'][@aria-disabled='false']").click()
     except TimeoutException:
-        print(user_email + ": end date picker does not exist!")
+        msg = user_email + ": end date picker does not exist!"
+        err_msg.append(msg)
+        print(msg)
 
 def send_auto_order(user_email, driver):
     # Click aktifkan auto order
@@ -331,7 +367,9 @@ def send_auto_order(user_email, driver):
 
         driver.find_element(By.XPATH, '//*[@data-testid="btnPopupSell"]').click()
     except TimeoutException:
-        print(user_email + ": aktifkan auto order take profit does not exist!")
+        msg = user_email + ": aktifkan auto order take profit does not exist!"
+        err_msg.append(msg)
+        print(msg)
 
     # Click konfirmasi auto order
     try:
@@ -342,7 +380,9 @@ def send_auto_order(user_email, driver):
         
         driver.find_element(By.XPATH, '//*[@data-testid="btnConfirmSell"]').click()
     except TimeoutException:
-        print(user_email + ": konfirmasi auto order take profit does not exist!")
+        msg = user_email + ": konfirmasi auto order take profit does not exist!"
+        err_msg.append(msg)
+        print(msg)
 
 # Delete chrome cache
 def delete_cache(user, driver):
