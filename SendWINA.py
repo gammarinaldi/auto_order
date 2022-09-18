@@ -1,24 +1,15 @@
 import csv
 import telegram
 import time
-import os
-import logging
-import traceback
 import lib
-from dotenv import load_dotenv
 
 if __name__ == '__main__':
-    # Load config env
-    load_dotenv()
-
     # Define telegram bot
-    TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-    TELEGRAM_CHAT_IDS = [os.getenv('TELEGRAM_CHAT_ID_WINA'), os.getenv('TELEGRAM_CHAT_ID_SINYALA')]
-    TELEGRAM_LOGGER_ID = os.getenv('TELEGRAM_LOGGER_ID')
-    bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
+    tele_bot_token, tele_chat_ids, tele_log_id = lib.get_tele_data()
+    bot = telegram.Bot(token=tele_bot_token)
 
     list_order = []
-    path = lib.get_analysis_report()
+    path = lib.analysis_path()
 
     try:
         print("Performing WINA...\n")
@@ -43,7 +34,7 @@ if __name__ == '__main__':
                     msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
 
                     # Send signal to telegram
-                    lib.send_signal(TELEGRAM_CHAT_IDS, msg, bot)
+                    # lib.send_msg_v2(bot, tele_chat_ids, msg)
 
                     # Input order parameters for auto order
                     list_order.append(lib.data_order(emiten, buy_price, take_profit, cut_loss))
@@ -51,11 +42,11 @@ if __name__ == '__main__':
                 t1 = time.time()
 
                 # Send async buy order to sekuritas
-                lib.async_buy(list_order)
+                lib.async_buy(list_order, tele_chat_ids, bot)
 
                 t2 = time.time()
                 diff = t2 -t1
-                print("Processing buy order takes: " + str(round(diff, 2)) + " secs.")
+                print("Processing auto-buy order takes: " + str(round(diff, 2)) + " secs.")
 
                 print('Wait 1 hour to create auto sell order')
                 time.sleep(3600)
@@ -63,23 +54,17 @@ if __name__ == '__main__':
                 t1 = time.time()
 
                 # Send async auto sell order to sekuritas
-                lib.async_sell(list_order)
+                lib.async_sell(list_order, tele_chat_ids, bot)
 
                 t2 = time.time()
                 diff = t2 -t1
-                print("Processing buy order takes: " + str(round(diff, 2)) + " secs.")
+                print("Processing auto-sell order setup takes: " + str(round(diff, 2)) + " secs.")
             else: 
                 msg = "Sorry, no signal for today."
-                bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=msg)
-                for chat_id in TELEGRAM_CHAT_IDS:
-                    bot.send_message(chat_id=chat_id, text=msg)
+                lib.send_msg(bot, tele_chat_ids, msg)
     except Exception as error:
-        # Define logger
-        logging.basicConfig(level=logging.DEBUG)
-        logger = logging.getLogger(__name__)
-        error_msg = traceback.format_exc()
-        logger.debug(error_msg)
-        bot.send_message(chat_id=TELEGRAM_LOGGER_ID, text=error_msg)
+        print(error)
+        lib.error_log(bot, tele_log_id)
 
     print("Done.")
 
