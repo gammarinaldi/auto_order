@@ -34,7 +34,7 @@ if __name__ == '__main__':
                     msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
 
                     # Send signal to telegram
-                    # lib.send_msg_v2(bot, tele_chat_ids, msg)
+                    lib.send_msg_v2(bot, tele_chat_ids, msg)
 
                     # Input order parameters for auto order
                     list_order.append(lib.data_order(emiten, buy_price, take_profit, cut_loss))

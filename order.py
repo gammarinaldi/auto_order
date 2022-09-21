@@ -118,22 +118,21 @@ def create_buy_order(user, driver, emiten, buy_price):
         # Input price
         try:
             WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="btnBuy"]')))
-            print(user_email + ": input harga")
+            print(user_email + ": input harga => " + buy_price)
             input_price = driver.find_element(By.XPATH, '//input[@id="INPUT_BUY_PRICE"]')
             input_price.send_keys(Keys.CONTROL + "A")
-            input_price.send_keys(Keys.DELETE)
             input_price.send_keys(buy_price)
 
             # Calculate position size (Lot)
             buy_power = get_buying_power(driver)
             buy_lot = buy_power / (int(buy_price) * 100)
+            round_buy_lot = math.floor(buy_lot)
             input_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_BUY_LOT"]')
             input_lot.send_keys(Keys.CONTROL + "A")
-            input_lot.send_keys(Keys.DELETE)
-            input_lot.send_keys(math.floor(buy_lot))
+            input_lot.send_keys(round_buy_lot)
 
             print(user_email + ": buying power => " + str(buy_power))
-            print(user_email + ": buy lot => " + str(buy_lot))
+            print(user_email + ": buy lot => " + str(round_buy_lot))
 
             buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').is_enabled()
             if buy_btn:
@@ -206,14 +205,12 @@ def create_take_profit(user_email, driver, emiten, take_profit):
 
         # Input trigger price
         take_profit_field = driver.find_element(By.XPATH, '//div[@class="pl-4 col-md-6"]//input')
-        take_profit_field.send_keys(Keys.CONTROL + "a")
-        take_profit_field.send_keys(Keys.DELETE)
+        take_profit_field.send_keys(Keys.CONTROL + "A")
         take_profit_field.send_keys(take_profit)
 
         # Input sell price (TP)
         sell_price = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_PRICE"]')
-        sell_price.send_keys(Keys.CONTROL + "a")
-        sell_price.send_keys(Keys.DELETE)
+        sell_price.send_keys(Keys.CONTROL + "A")
         sell_price.send_keys(take_profit)
 
         # Get available lot
@@ -221,8 +218,7 @@ def create_take_profit(user_email, driver, emiten, take_profit):
 
         # Input lot to order
         sell_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_LOT"]')
-        sell_lot.send_keys(Keys.CONTROL + "a")
-        sell_lot.send_keys(Keys.DELETE)
+        sell_lot.send_keys(Keys.CONTROL + "A")
         sell_lot.send_keys(lot)
         
         send_auto_order(user_email, driver)
@@ -259,14 +255,12 @@ def create_cut_loss(user_email, driver, emiten, cut_loss):
 
         # Input trigger price
         cut_loss_field = driver.find_element(By.XPATH, '//div[@class="pl-4 col-md-6"]//input')
-        cut_loss_field.send_keys(Keys.CONTROL + "a")
-        cut_loss_field.send_keys(Keys.DELETE)
+        cut_loss_field.send_keys(Keys.CONTROL + "A")
         cut_loss_field.send_keys(cut_loss)
 
         # Input sell price (CL)
         sell_price = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_PRICE"]')
-        sell_price.send_keys(Keys.CONTROL + "a")
-        sell_price.send_keys(Keys.DELETE)
+        sell_price.send_keys(Keys.CONTROL + "A")
         sell_price.send_keys(cut_loss)
 
         # Get available lot
@@ -274,8 +268,7 @@ def create_cut_loss(user_email, driver, emiten, cut_loss):
 
         # Input lot to order
         sell_lot = driver.find_element(By.XPATH, '//*[@id="INPUT_SELL_LOT"]')
-        sell_lot.send_keys(Keys.CONTROL + "a")
-        sell_lot.send_keys(Keys.DELETE)
+        sell_lot.send_keys(Keys.CONTROL + "A")
         sell_lot.send_keys(lot)
 
         send_auto_order(user_email, driver)

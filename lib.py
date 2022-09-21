@@ -33,7 +33,6 @@ def get_tele_data():
 
     return tele_bot_token, tele_chat_ids, tele_log_id
 
-# Check csv content
 def is_empty_csv(path):
     with open(path) as csvfile:
         reader = csv.reader(csvfile)
@@ -42,7 +41,6 @@ def is_empty_csv(path):
                 return False
     return True
 
-# Define data order params
 class data_order():
     def __init__(self, emiten, buy_price, take_profit, cut_loss):
         self.emiten = emiten
@@ -50,7 +48,6 @@ class data_order():
         self.take_profit = take_profit
         self.cut_loss = cut_loss
 
-# Get web driver
 def get_driver():
     threadLocal = threading.local()
     driver = getattr(threadLocal, 'driver', None)
@@ -62,32 +59,31 @@ def get_driver():
         setattr(threadLocal, 'driver', driver)
     return driver
 
-def buy(user, list_order, bot, chat_ids):
+def buy(user, list_order):
     driver = get_driver()
     order.login(user, driver)
     
     for obj in list_order:
         res = order.create_buy_order(user, driver, obj.emiten, obj.buy_price)
         LIST.append(res)
-        # send_msg(bot, chat_ids, res)
 
     order.logout(user, driver)
     order.delete_cache(user, driver)
 
-def sell(user, list_order, bot, chat_ids):
+def sell(user, list_order):
     driver = get_driver()
     order.login(user, driver)   
 
     for obj in list_order:
         res = order.create_sell_order(user, driver, obj.emiten, obj.take_profit, obj.cut_loss)
-        # send_msg(bot, chat_ids, res)
+        LIST.append(res)
 
     order.logout(user, driver)
     order.delete_cache(user, driver)
 
 def async_buy(list_order, chat_ids, bot):
     with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_user = {executor.submit(buy, user, list_order, bot, chat_ids): user for user in get_user_data()}
+        future_to_user = {executor.submit(buy, user, list_order): user for user in get_user_data()}
         for future in concurrent.futures.as_completed(future_to_user):
             user = future_to_user[future]
             try:
@@ -102,7 +98,7 @@ def async_buy(list_order, chat_ids, bot):
 
 def async_sell(list_order, chat_ids, bot):
     with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_user = {executor.submit(sell, user, list_order, bot, chat_ids): user for user in get_user_data()}
+        future_to_user = {executor.submit(sell, user, list_order): user for user in get_user_data()}
         for future in concurrent.futures.as_completed(future_to_user):
             user = future_to_user[future]
             try:
@@ -113,6 +109,7 @@ def async_sell(list_order, chat_ids, bot):
             except Exception:
                 _, _, tele_log_id = get_tele_data()
                 error_log(bot, tele_log_id)
+    send_result(bot, chat_ids)
 
 def send_result(bot, chat_ids):
     send_msg(bot, chat_ids, join_msg(LIST))
