@@ -285,7 +285,14 @@ def select_auto_order_type(user_email, driver):
         WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@id="periodType"]')))
         print(user_email + ": pilih tipe order")
         driver.find_element(By.XPATH, '//*[@id="periodType"]').click()
-        driver.find_element(By.XPATH, '//*[@data-testid="opt-periodType-1"]').click()
+        try:
+            WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//div[@class="css-1r6unlo"]')))
+            print(user_email + ": pilih auto order")
+            driver.find_element(By.XPATH, '//div[@class="css-1r6unlo"]').click()
+        except TimeoutException:
+            msg = user_email + ": pilih auto order does not exist!"
+            err_msg.append(msg)
+            print(msg)
     except TimeoutException:
         msg = user_email + ": pilih tipe order does not exist!"
         err_msg.append(msg)
@@ -354,26 +361,26 @@ def send_auto_order(user_email, driver):
     # Click aktifkan auto order
     try:
         WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@data-testid="btnPopupSell"]')))
-        print(user_email + ": aktifkan auto order take profit")
+        print(user_email + ": aktifkan auto order sell")
 
         time.sleep(3)
 
         driver.find_element(By.XPATH, '//*[@data-testid="btnPopupSell"]').click()
     except TimeoutException:
-        msg = user_email + ": aktifkan auto order take profit does not exist!"
+        msg = user_email + ": aktifkan auto order sell does not exist!"
         err_msg.append(msg)
         print(msg)
 
     # Click konfirmasi auto order
     try:
         WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//*[@data-testid="btnConfirmSell"]')))
-        print(user_email + ": konfirmasi auto order take profit")
+        print(user_email + ": konfirmasi auto order sell")
 
         time.sleep(3)
         
         driver.find_element(By.XPATH, '//*[@data-testid="btnConfirmSell"]').click()
     except TimeoutException:
-        msg = user_email + ": konfirmasi auto order take profit does not exist!"
+        msg = user_email + ": konfirmasi auto order sell does not exist!"
         err_msg.append(msg)
         print(msg)
 

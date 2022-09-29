@@ -100,6 +100,7 @@ def async_sell(list_order, chat_ids, bot):
     with ThreadPoolExecutor(max_workers=10) as executor:
         future_to_user = {executor.submit(sell, user, list_order): user for user in get_user_data()}
         for future in concurrent.futures.as_completed(future_to_user):
+            # future.result()
             user = future_to_user[future]
             try:
                 if future.done():
