@@ -133,30 +133,38 @@ def create_buy_order(user, driver, emiten, buy_price):
 
             print(user_email + ": buying power => " + str(buy_power))
             print(user_email + ": buy lot => " + str(round_buy_lot))
+            
+            try: 
+                WebDriverWait(driver, DELAY).until(EC.presence_of_element_located(By.XPATH, '//button[@data-testid="btnPopupBuy"]'))
+                print(user_email + ": click pop up button beli")
+                buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').is_enabled()
 
-            buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').is_enabled()
-            if buy_btn:
-                # Click button Beli
-                driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').click()
+                if buy_btn:
+                    # Click button pop up Beli
+                    buy_btn.click()
 
-                # Click button Konfirmasi Beli
-                try:
-                    WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="btnConfirmBuy"]')))
-                    print(user_email + ": konfirmasi beli")
+                    # Click button Konfirmasi Beli
+                    try:
+                        WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="btnConfirmBuy"]')))
+                        print(user_email + ": konfirmasi beli")
 
-                    time.sleep(3)
+                        time.sleep(3)
 
-                    driver.find_element(By.XPATH, '//button[@data-testid="btnConfirmBuy"]').click()
+                        driver.find_element(By.XPATH, '//button[@data-testid="btnConfirmBuy"]').click()
 
-                    msg = user_email + ": buying " + emiten + " success!"
+                        msg = user_email + ": buying " + emiten + " success!"
+                        err_msg.append(msg)
+                        print(msg)
+                    except TimeoutException:
+                        msg = user_email + ": button konfirmasi beli does not exist!"
+                        err_msg.append(msg)
+                        print(msg)
+                else:
+                    msg = user_email + ": button pop up beli " + emiten + " is disabled!"
                     err_msg.append(msg)
                     print(msg)
-                except TimeoutException:
-                    msg = user_email + ": button konfirmasi beli does not exist!"
-                    err_msg.append(msg)
-                    print(msg)
-            else:
-                msg = user_email + ": buying " + emiten + " failed!"
+            except TimeoutException:
+                msg = user_email + ": button pop up beli does not exist!"
                 err_msg.append(msg)
                 print(msg)
         except TimeoutException:
