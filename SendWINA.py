@@ -2,6 +2,8 @@ import csv
 import telegram
 import time
 import lib
+import os
+from dotenv import load_dotenv
 
 if __name__ == '__main__':
     # Define telegram bot
@@ -10,6 +12,10 @@ if __name__ == '__main__':
 
     list_order = []
     path = lib.analysis_path()
+
+    load_dotenv()
+    send_signal = os.getenv('SEND_SIGNAL')
+    auto_order = os.getenv('AUTO_ORDER')
 
     try:
         print("Performing WINA...\n")
@@ -34,31 +40,34 @@ if __name__ == '__main__':
                     msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
 
                     # Send signal to telegram
-                    lib.send_msg_v2(bot, tele_chat_ids, msg)
+                    if send_signal == "1":
+                        lib.send_msg_v2(bot, tele_chat_ids, msg)
 
                     # Input order parameters for auto order
                     list_order.append(lib.data_order(emiten, buy_price, take_profit, cut_loss))
 
-                t1 = time.time()
+                # Perform auto order
+                if auto_order == "1":
+                    t1 = time.time()
 
-                # Send async buy order to sekuritas
-                lib.async_buy(list_order, tele_chat_ids, bot)
+                    # Async buy
+                    lib.async_buy(list_order, tele_chat_ids, bot)
 
-                t2 = time.time()
-                diff = t2 -t1
-                print("Processing auto-buy order takes: " + str(round(diff, 2)) + " secs.")
+                    t2 = time.time()
+                    diff = t2 -t1
+                    print("Processing auto-buy order takes: " + str(round(diff, 2)) + " secs.")
 
-                print('Wait 1 hour to create auto sell order')
-                time.sleep(3600)
+                    print('Wait 1 hour to create auto sell order')
+                    time.sleep(3600)
 
-                t1 = time.time()
-                
-                # Send async auto sell order to sekuritas
-                lib.async_sell(list_order, tele_chat_ids, bot)
+                    t1 = time.time()
+                    
+                    # Async sell
+                    lib.async_sell(list_order, tele_chat_ids, bot)
 
-                t2 = time.time()
-                diff = t2 -t1
-                print("Processing auto-sell order setup takes: " + str(round(diff, 2)) + " secs.")
+                    t2 = time.time()
+                    diff = t2 -t1
+                    print("Processing auto-sell order setup takes: " + str(round(diff, 2)) + " secs.")
             else: 
                 msg = "Sorry, no signal for today."
                 lib.send_msg(bot, tele_chat_ids, msg)

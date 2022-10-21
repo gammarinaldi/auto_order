@@ -1,5 +1,5 @@
+from types import NoneType
 import undetected_chromedriver as uc
-import order
 import concurrent.futures
 import threading
 import json
@@ -89,6 +89,12 @@ def async_buy(list_order, chat_ids, bot):
             try:
                 if future.done():
                     print(user["email"] + ": process async buy order completed!")
+                    
+                    if future.result() == NoneType:
+                        print("RESULT:")
+                        print(future.result())
+                    else:
+                        print("FAILED RESULT")
                 else:
                     print(user["email"] + ": process async buy order failed!")
             except Exception:

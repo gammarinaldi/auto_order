@@ -97,7 +97,7 @@ def get_buying_power(driver):
     # Get buying power
     # buy_power_str = driver.find_element(By.XPATH, '//span[text()="Regular Buying Power"]/following::span').text
     # buy_power_num = filter_non_digits(buy_power_str)
-    buy_power_num = 20_000_000
+    buy_power_num = 1_000_000
     return math.floor(buy_power_num / 4)
 
 def create_buy_order(user, driver, emiten, buy_price):
@@ -135,11 +135,11 @@ def create_buy_order(user, driver, emiten, buy_price):
             print(user_email + ": buy lot => " + str(round_buy_lot))
             
             try: 
-                WebDriverWait(driver, DELAY).until(EC.presence_of_element_located(By.XPATH, '//button[@data-testid="btnPopupBuy"]'))
+                WebDriverWait(driver, DELAY).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="btnPopupBuy"]')))
                 print(user_email + ": click pop up button beli")
-                buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]').is_enabled()
+                buy_btn = driver.find_element(By.XPATH, '//button[@data-testid="btnPopupBuy"]')
 
-                if buy_btn:
+                if buy_btn.is_enabled():
                     # Click button pop up Beli
                     buy_btn.click()
 
