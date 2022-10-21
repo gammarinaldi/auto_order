@@ -29,6 +29,7 @@ if __name__ == '__main__':
                     emiten = row[0]
                     if row[0].find(".JK") != -1:
                         emiten = emiten.replace(".JK", "")
+
                     signal_date = row[1].split(" ")[0]
                     # close = row[2]
                     # change = row[3]
