@@ -14,8 +14,9 @@ if __name__ == '__main__':
     path = lib.analysis_path()
 
     load_dotenv()
-    send_signal = os.getenv('SEND_SIGNAL')
-    auto_order = os.getenv('AUTO_ORDER')
+    enable_signal = os.getenv('ENABLE_SIGNAL')
+    enable_buy = os.getenv('ENABLE_BUY')
+    enable_sell = os.getenv('ENABLE_SELL')
 
     try:
         print("Performing WINA...\n")
@@ -41,14 +42,14 @@ if __name__ == '__main__':
                     msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
 
                     # Send signal to telegram
-                    if send_signal == "1":
+                    if enable_signal == "1":
                         lib.send_msg_v2(bot, tele_chat_ids, msg)
 
                     # Input order parameters for auto order
                     list_order.append(lib.data_order(emiten, buy_price, take_profit, cut_loss))
 
-                # Perform auto order
-                if auto_order == "1":
+                # Perform auto order buy
+                if enable_buy == "1":
                     t1 = time.time()
 
                     # Async buy
@@ -58,17 +59,19 @@ if __name__ == '__main__':
                     diff = t2 -t1
                     print("Processing auto-buy order takes: " + str(round(diff, 2)) + " secs.")
 
+                # Perform auto order sell
+                if enable_sell == "1":
                     print('Wait 1 hour to create auto sell order')
-                    time.sleep(3600)
+                    # time.sleep(3600)
 
                     t1 = time.time()
-                    
+
                     # Async sell
                     lib.async_sell(list_order, tele_chat_ids, bot)
 
                     t2 = time.time()
                     diff = t2 -t1
-                    print("Processing auto-sell order setup takes: " + str(round(diff, 2)) + " secs.")
+                    print("Processing auto-sell order takes: " + str(round(diff, 2)) + " secs.")
             else: 
                 msg = "Sorry, no signal for today."
                 lib.send_msg(bot, tele_chat_ids, msg)

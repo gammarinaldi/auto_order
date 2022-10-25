@@ -86,9 +86,10 @@ def sell(user, list_order):
 
         for dict in porto_dicts:
             if dict["stock"] == emiten:
-                order.create_sell(access_token, emiten, tp, cl, dict["beglot"], "GTE")
+                lot = dict["beglot"]
+                order.create_sell(access_token, emiten, tp, lot, "GTE")
                 time.sleep(3)
-                order.create_sell(access_token, emiten, tp, cl, dict["beglot"], "LTE")
+                order.create_sell(access_token, emiten, cl, lot, "LTE")
     
     logout.call(access_token)
 
@@ -101,9 +102,9 @@ def async_buy(list_order, chat_ids, bot):
                 if future.done():
                     print(user["email"] + ": process async buy order completed!")
                     if future.result() == None:
-                        print("RESULT OK")
+                        print("RESULT: OK")
                     else:
-                        print("FAILED RESULT")
+                        print("RESULT: FAILED")
                         print(future.result())
                 else:
                     print(user["email"] + ": process async buy order failed!")
@@ -121,9 +122,9 @@ def async_sell(list_order, chat_ids, bot):
                 if future.done():
                     print(user["email"] + ": process async sell order completed!")
                     if future.result() == None:
-                        print("RESULT OK")
+                        print("RESULT: OK")
                     else:
-                        print("FAILED RESULT")
+                        print("RESULT: FAILED")
                         print(future.result())
                 else:
                     print(user["email"] + ": process async sell order failed!")

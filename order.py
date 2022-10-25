@@ -1,5 +1,8 @@
 import requests
 import json
+from datetime import date, timedelta
+
+today = date.today()
 
 def create_buy(access_token, emiten, price, lot):
     url = "https://ht2.ajaib.co.id/api/v1/stock/buy/"
@@ -37,19 +40,22 @@ def create_buy(access_token, emiten, price, lot):
 
     return response
 
-def create_sell(access_token, emiten, take_profit, lot, comparator):
+def create_sell(access_token, emiten, price, lot, comparator):
     url = "https://ht2.ajaib.co.id/api/v1/stock/auto-trading/?account_type=REG"
-
+    start = today + timedelta(days=1)
+    end = start + timedelta(days=30)
+    start_date = start.strftime("%Y-%m-%d")
+    end_date = end.strftime("%Y-%m-%d")
     payload = json.dumps({
         "code": emiten,
         "side": "SELL",
         "criterion": "PRICE",
         "comparator": comparator,
-        "value": take_profit,
-        "order_price": take_profit,
+        "value": price,
+        "order_price": price,
         "lot": lot,
-        "start_date": "2022-10-21",
-        "end_date": "2022-10-28",
+        "start_date": start_date,
+        "end_date": end_date,
         "expiry": "day"
     })
 
