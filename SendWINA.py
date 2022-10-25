@@ -53,25 +53,27 @@ if __name__ == '__main__':
                     t1 = time.time()
 
                     # Async buy
-                    lib.async_buy(list_order, tele_chat_ids, bot)
+                    lib.async_buy(list_order, bot)
 
                     t2 = time.time()
                     diff = t2 -t1
                     print("Processing auto-buy order takes: " + str(round(diff, 2)) + " secs.")
+                    lib.send_log(bot, tele_log_id, lib.LOG)
 
                 # Perform auto order sell
                 if enable_sell == "1":
                     print('Wait 1 hour to create auto sell order')
-                    # time.sleep(3600)
+                    time.sleep(3600)
 
                     t1 = time.time()
 
                     # Async sell
-                    lib.async_sell(list_order, tele_chat_ids, bot)
+                    lib.async_sell(list_order, bot)
 
                     t2 = time.time()
                     diff = t2 -t1
                     print("Processing auto-sell order takes: " + str(round(diff, 2)) + " secs.")
+                    lib.send_log(bot, tele_log_id, lib.LOG)
             else: 
                 msg = "Sorry, no signal for today."
                 lib.send_msg(bot, tele_chat_ids, msg)
