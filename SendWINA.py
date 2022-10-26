@@ -53,7 +53,7 @@ if __name__ == '__main__':
                     t1 = time.time()
 
                     # Async buy
-                    lib.async_buy(list_order, bot)
+                    lib.async_order("buy", list_order, bot)
 
                     t2 = time.time()
                     diff = t2 -t1
@@ -68,7 +68,7 @@ if __name__ == '__main__':
                     t1 = time.time()
 
                     # Async sell
-                    lib.async_sell(list_order, bot)
+                    lib.async_order("sell", list_order, bot)
 
                     t2 = time.time()
                     diff = t2 -t1

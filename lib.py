@@ -147,42 +147,26 @@ def sell(user, list_order):
         msg = user["email"] + ": login error: " + res.text
         LOG.append(msg)
 
-def async_buy(list_order, bot):
+def async_order(side, list_order, bot):
     with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_user = {executor.submit(buy, user, list_order): user for user in get_user_data()}
+        future_to_user = executor_submit(side, executor, list_order)
         for future in concurrent.futures.as_completed(future_to_user):
             user = future_to_user[future]
             try:
-                if future.done():
-                    if future.result() == None:
-                        print(user["email"] + ": RESULT OK")
-                    else:
-                        print(user["email"] + ": RESULT ERROR")
-                        print(future.result())
+                if future.result() == None:
+                    print(user["email"] + ": RESULT OK")
                 else:
-                    print(user["email"] + ": process async buy order failed!")
+                    print(user["email"] + ": RESULT ERROR")
+                    print(future.result())
             except Exception:
                 _, _, tele_log_id = get_tele_data()
                 error_log(bot, tele_log_id)
 
-def async_sell(list_order, bot):
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_user = {executor.submit(sell, user, list_order): user for user in get_user_data()}
-        for future in concurrent.futures.as_completed(future_to_user):
-            user = future_to_user[future]
-            try:
-                if future.done():
-                    print(user["email"] + ": process async sell order completed!")
-                    if future.result() == None:
-                        print("RESULT: OK")
-                    else:
-                        print("RESULT: FAILED")
-                        print(future.result())
-                else:
-                    print(user["email"] + ": process async sell order failed!")
-            except Exception:
-                _, _, tele_log_id = get_tele_data()
-                error_log(bot, tele_log_id)
+def executor_submit(side, executor, list_order):
+    if side == "buy":
+        return {executor.submit(buy, user, list_order): user for user in get_user_data()}
+    else:
+        return {executor.submit(sell, user, list_order): user for user in get_user_data()}
 
 def send_log(bot, chat_id, log):
     bot.send_message(chat_id=chat_id, text=join_msg(log))
@@ -202,4 +186,4 @@ def error_log(bot, chat_id):
     logger = logging.getLogger(__name__)
     error_msg = traceback.format_exc()
     logger.debug(error_msg)
-    # bot.send_message(chat_id=chat_id, text=error_msg)
+    bot.send_message(chat_id=chat_id, text=error_msg)
