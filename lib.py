@@ -1,5 +1,4 @@
 import concurrent.futures
-from math import floor
 import login
 import logout
 import order
@@ -65,13 +64,12 @@ def buy(user, list_order):
         # data_porto = porto.json()
         # trading_limit = data_porto["result"]["trading_limit"]
         trading_limit = 4_000_000
-        allocated_amount = trading_limit / 4
+        amount = trading_limit / 4
 
         for obj in list_order:
-            lot = floor(( allocated_amount / float(obj.buy_price)) / 100)
-            res = order.create_buy(access_token, obj.emiten, obj.buy_price, lot)
+            res = order.create_buy(access_token, obj.emiten, amount)
             if res.status_code == 200:
-                msg = user["email"] + ": order buy " + lot + " lot " + obj.emiten + " sent"
+                msg = user["email"] + ": order buy Rp " + amount + " " + obj.emiten + " sent"
                 print(msg)
                 LOG.append(msg)
                 print(res.json())

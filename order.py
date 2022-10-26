@@ -1,15 +1,18 @@
 import requests
 import json
 import order_book
+from math import floor
 from datetime import date, timedelta
 
 today = date.today()
 
-def create_buy(access_token, emiten, price, lot):
+def create_buy(access_token, emiten, amount):
     res = order_book.call(access_token, emiten)
     if res.status_code == 200:
         data = res.json()
         order_price = data["sell_side"]["items"][4].price
+
+        lot = floor(( amount / float(order_price)) / 100)
 
         try:
             url = "https://ht2.ajaib.co.id/api/v1/stock/buy/"
