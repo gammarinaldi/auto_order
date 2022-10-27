@@ -10,7 +10,7 @@ def create_buy(access_token, emiten, amount):
     res = order_book.call(access_token, emiten)
     if res.status_code == 200:
         data = res.json()
-        order_price = data["sell_side"]["items"][4].price
+        order_price = data["sell_side"]["items"][0]["price"]
 
         lot = floor(( amount / float(order_price)) / 100)
 
@@ -64,7 +64,7 @@ def create_sell(access_token, emiten, value, lot, comparator):
     res = order_book.call(access_token, emiten)
     if res.status_code == 200:
         data = res.json()
-        order_price = data["buy_side"]["items"][4].price
+        order_price = data["buy_side"]["items"][0]["price"]
         
         try:
             url = "https://ht2.ajaib.co.id/api/v1/stock/auto-trading/?account_type=REG"

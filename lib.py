@@ -69,7 +69,7 @@ def buy(user, list_order):
         for obj in list_order:
             res = order.create_buy(access_token, obj.emiten, amount)
             if res.status_code == 200:
-                msg = user["email"] + ": order buy Rp " + amount + " " + obj.emiten + " sent"
+                msg = user["email"] + ": order buy Rp " + str(amount) + " " + obj.emiten + " sent"
                 print(msg)
                 LOG.append(msg)
                 print(res.json())
@@ -108,30 +108,30 @@ def sell(user, list_order):
                 emiten = obj.emiten
                 tp = int(obj.take_profit)
                 cl = int(obj.cut_loss)
+                dict = [i for i in porto_dicts if i['stock'] == emiten]
+                
+                if dict != []:
+                    lot = dict[0]["beglot"]
+                    res = order.create_sell(access_token, emiten, tp, lot, "GTE")
+                    if res.status_code == 200:
+                        print(user["email"] + ": set TP" + emiten + " OK")
+                        print(res.json())
+                        LOG.append(user["email"] + ": buy " + lot + " lot " + emiten + " success!")
 
-                for dict in porto_dicts:
-                    if dict["stock"] == emiten:
-                        lot = dict["beglot"]
-                        res = order.create_sell(access_token, emiten, tp, lot, "GTE")
+                        time.sleep(3)
+
+                        res = order.create_sell(access_token, emiten, cl, lot, "LTE")
                         if res.status_code == 200:
-                            print(user["email"] + ": set TP" + emiten + " OK")
+                            print(user["email"] + ": set CL" + emiten + " OK")
                             print(res.json())
-                            LOG.append(user["email"] + ": buy " + lot + " lot " + emiten + " success!")
-
-                            time.sleep(3)
-
-                            res = order.create_sell(access_token, emiten, cl, lot, "LTE")
-                            if res.status_code == 200:
-                                print(user["email"] + ": set CL" + emiten + " OK")
-                                print(res.json())
-                            else:
-                                msg = user["email"] + ": set CL error: " + res.text
-                                LOG.append(msg)
                         else:
-                            msg = user["email"] + ": set TP error: " + res.text
+                            msg = user["email"] + ": set CL error: " + res.text
                             LOG.append(msg)
                     else:
-                        LOG.append(user["email"] + ": buy " + lot + " lot " + emiten + " failed!")
+                        msg = user["email"] + ": set TP error: " + res.text
+                        LOG.append(msg)
+                else:
+                    LOG.append(user["email"] + ": sell " + emiten + " failed, not exists in portolio")
             
             res = logout.call(access_token)
             if res.status_code == 200:
