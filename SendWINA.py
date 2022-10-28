@@ -76,7 +76,7 @@ if __name__ == '__main__':
                     lib.send_log(bot, tele_log_id, lib.LOG)
             else: 
                 msg = "Sorry, no signal for today."
-                lib.send_msg(bot, tele_chat_ids, msg)
+                lib.send_msg_v2(bot, tele_chat_ids, msg)
     except Exception as error:
         print(error)
         lib.error_log(bot, tele_log_id)
