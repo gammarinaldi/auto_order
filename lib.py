@@ -51,6 +51,7 @@ class data_order():
         self.cut_loss = cut_loss
 
 def buy(user, list_order):
+    LOG.append("Order Buy Report:")
     res = login.call(user)
     if res.status_code == 200:
         data = res.json()
@@ -90,6 +91,7 @@ def buy(user, list_order):
 
 
 def sell(user, list_order):
+    LOG.append("Order Sell Report:")
     res = login.call(user)
     if res.status_code == 200:
         data = res.json()

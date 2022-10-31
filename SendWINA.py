@@ -59,6 +59,7 @@ if __name__ == '__main__':
                     diff = t2 -t1
                     print("Processing auto-buy order takes: " + str(round(diff, 2)) + " secs.")
                     lib.send_log(bot, tele_log_id, lib.LOG)
+                    lib.LOG = []
 
                 # Perform auto order sell
                 if enable_sell == "1":
