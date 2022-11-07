@@ -3,6 +3,7 @@ import telegram
 import time
 import lib
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 
 if __name__ == '__main__':
@@ -17,6 +18,11 @@ if __name__ == '__main__':
     enable_signal = os.getenv('ENABLE_SIGNAL')
     enable_buy = os.getenv('ENABLE_BUY')
     enable_sell = os.getenv('ENABLE_SELL')
+    sell_delay = os.getenv('SELL_DELAY')
+
+    now = datetime.now()
+    open_time = now.replace(hour=9, minute=0, second=0, microsecond=0)
+    close_time = now.replace(hour=15, minute=0, second=0, microsecond=0)
 
     try:
         print("Performing WINA...\n")
@@ -61,10 +67,16 @@ if __name__ == '__main__':
                     lib.send_log(bot, tele_log_id, lib.LOG)
                     lib.LOG = []
 
+                # if enable_sell == "1":
+                #     while now >= open_time and now <= close_time:
+                #         # Async sell
+                #         lib.async_order("sell", list_order, bot)
+                #         time.sleep(60)
+
                 # Perform auto order sell
                 if enable_sell == "1":
                     print('Wait 1 hour to create auto sell order')
-                    time.sleep(3600)
+                    time.sleep(int(sell_delay))
 
                     t1 = time.time()
 
@@ -76,7 +88,7 @@ if __name__ == '__main__':
                     print("Processing auto-sell order takes: " + str(round(diff, 2)) + " secs.")
                     lib.send_log(bot, tele_log_id, lib.LOG)
             else: 
-                msg = "Sorry, no signal for today."
+                msg = "No signal for today"
                 lib.send_msg_v2(bot, tele_chat_ids, msg)
     except Exception as error:
         print(error)

@@ -116,14 +116,14 @@ def sell(user, list_order):
                     lot = int(dict[0]["lot"])
                     res = order.create_sell(access_token, emiten, tp, lot, "GTE")
                     if res.status_code == 200:
-                        print(user["email"] + ": set TP" + emiten + " OK")
+                        print(user["email"] + ": set TP " + emiten + " OK")
                         print(res.json())
 
                         time.sleep(3)
 
                         res = order.create_sell(access_token, emiten, cl, lot, "LTE")
                         if res.status_code == 200:
-                            print(user["email"] + ": set CL" + emiten + " OK")
+                            print(user["email"] + ": set CL " + emiten + " OK")
                             print(res.json())
                         else:
                             msg = user["email"] + ": set CL error: " + res.text
@@ -168,6 +168,18 @@ def executor_submit(side, executor, list_order):
         return {executor.submit(buy, user, list_order): user for user in get_user_data()}
     else:
         return {executor.submit(sell, user, list_order): user for user in get_user_data()}
+
+def tick(price):
+    if price <= 200: 
+        return 1
+    elif price > 200 and price <= 500: 
+        return 2
+    elif price > 500 and price <= 2000: 
+        return 5
+    elif price > 2000 and price <= 5000: 
+        return 10
+    else: 
+        return 25
 
 def send_log(bot, chat_id, log):
     bot.send_message(chat_id=chat_id, text=join_msg(log))
