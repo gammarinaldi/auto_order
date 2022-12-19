@@ -10,22 +10,14 @@ import logging
 import traceback
 import os
 import time
+import users
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 LOG = []
 
-def users_path():
-    return r"C:\Users\Gama\Downloads\GamaTradingSystem\auto_order\data.json"
-
 def analysis_path():
     return r"C:\Users\Gama\Downloads\GamaTradingSystem\WINAReport.csv"
-
-def get_user_data():
-    f = open(users_path())
-    users = json.load(f)
-    f.close()
-    return users
 
 def get_tele_data():
     load_dotenv()
@@ -121,7 +113,8 @@ def sell(user, list_order):
 
                         time.sleep(3)
 
-                        res = order.create_sell(access_token, emiten, cl, lot, "LTE")
+                        # Create cut loss expect market order sell
+                        res = order.create_sell(access_token, emiten, cl - tick(cl), lot, "LTE")
                         if res.status_code == 200:
                             print(user["email"] + ": set CL " + emiten + " OK")
                             print(res.json())
@@ -165,9 +158,9 @@ def async_order(side, list_order, bot):
 
 def executor_submit(side, executor, list_order):
     if side == "buy":
-        return {executor.submit(buy, user, list_order): user for user in get_user_data()}
+        return {executor.submit(buy, user, list_order): user for user in users.list}
     else:
-        return {executor.submit(sell, user, list_order): user for user in get_user_data()}
+        return {executor.submit(sell, user, list_order): user for user in users.list}
 
 def tick(price):
     if price <= 200: 

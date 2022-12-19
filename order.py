@@ -1,7 +1,6 @@
 import requests
 import json
 import order_book
-import lib
 from math import floor
 from datetime import date, timedelta
 
@@ -74,7 +73,7 @@ def create_sell(access_token, emiten, value, lot, comparator):
             "criterion": "PRICE",
             "comparator": comparator,
             "value": value,
-            "order_price": value - lib.tick(value),
+            "order_price": value,
             "lot": lot,
             "start_date": start_date,
             "end_date": end_date,
