@@ -11,20 +11,20 @@ if __name__ == '__main__':
     bot = telegram.Bot(token=tele_bot_token)
 
     list_order = []
-    path = lib.analysis_path()
 
     load_dotenv()
     enable_signal = os.getenv('ENABLE_SIGNAL')
     enable_buy = os.getenv('ENABLE_BUY')
     enable_sell = os.getenv('ENABLE_SELL')
     sell_delay = os.getenv('SELL_DELAY')
+    dir_path = os.getenv('DIR_PATH')
 
     try:
-        print("Performing WINA...\n")
+        print("Starting WINA...\n")
 
-        with open(path, "r") as file:
+        with open(f"{dir_path}\\WINAReport.csv", "r") as file:
             csvreader = csv.reader(file)
-            if lib.is_empty_csv(path) == False:
+            if lib.is_empty_csv(f"{dir_path}\\WINAReport.csv") == False:
                 next(csvreader, None)
 
                 for row in csvreader:
@@ -40,6 +40,12 @@ if __name__ == '__main__':
                     take_profit = row[6]
                     cut_loss = row[7]
                     
+                    row = [emiten, signal_date, buy_price, take_profit, cut_loss] #the data
+                    with open(f"{dir_path}\\auto_order\\history.csv", 'a', newline='', encoding='utf-8') as file:
+                        writer = csv.writer(file) #this is the writer object
+                        writer.writerow(row) #this is the data
+                        file.close()
+
                     msg = "💌 Rekomendasi WINA \(" + signal_date + "\)\n\n*Buy $" + emiten + "\nBuy @" + buy_price + "\nTake Profit @" + take_profit + "\nCutloss @" + cut_loss + "*\n\n_Disclaimer ON\. DYOR\._"
 
                     # Send signal to telegram
@@ -78,7 +84,9 @@ if __name__ == '__main__':
                     lib.send_log(bot, tele_log_id, lib.LOG)
             else: 
                 msg = "No signal for today"
-                lib.send_msg_v2(bot, tele_chat_ids, msg)
+                print(msg)
+                if enable_signal == "1": 
+                    lib.send_msg_v2(bot, tele_chat_ids, msg)
     except Exception as error:
         print(error)
         lib.error_log(bot, tele_log_id)

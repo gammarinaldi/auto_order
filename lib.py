@@ -16,9 +16,6 @@ from dotenv import load_dotenv
 
 LOG = []
 
-def analysis_path():
-    return r"C:\Users\Gama\Downloads\GamaTradingSystem\WINAReport.csv"
-
 def get_tele_data():
     load_dotenv()
     tele_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
